@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            lingo-rephraise <span>ai</span>
+        </div>
+        <!-- Add other navigation items if needed -->
+    </nav>
+
+    <div class="container">
+        <h1>Upload File</h1>
+        <form action="/upload_file" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv,.xlsx" required>
+            <button type="submit">Upload</button>
+        </form>
+
+        <!-- Display file details if available -->
+        {% if file_details %}
+        <div>
+            <h2>File Details</h2>
+            <p>File Name: {{ file_details.filename }}</p>
+            <p>Number of Rows: {{ file_details.num_rows }}</p>
+            <p>Column Names: {{ file_details.columns }}</p>
+            <!-- Add more details as needed -->
+            <a href="/analysis" class="button">Analyze</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

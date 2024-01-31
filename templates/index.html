@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to lingo-rephraise</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            lingo rephr<span>ai</span>se
+        </div>
+        <!-- add other navigation items -->
+    </nav>
+
+    <div class="container">
+        <h1>welcome to lingo-rephraise</h1>
+        <p>
+            lingo-rephraise is a powerful tool designed to assist in text analysis and data visualization.
+            it allows you to upload csv or excel files, analyze text using pre-trained models, and explore
+            data insights through visualizations.
+        </p>
+        <!-- add content here -->
+        <a href="{{ url_for('upload_file') }}" class="button">take me there</a>
+    </div>
+</body>
+</html>

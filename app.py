@@ -116,45 +116,21 @@ def upload_file():
 def analysis():
     file_path = request.args.get('file_path')
     text_column = request.args.get('text_column')
+
     sentences, cluster_labels, embedded_embeddings, cluster_names = process_analysis('./uploads/mcdonalds_sri_lanka_reviews.csv', 'phrases')
 
-    x_data = [x[0] for x in embedded_embeddings]
-    y_data = [x[1] for x in embedded_embeddings]
-    hover_text = [f"Sentence : {sentence} <br>Cluster Name : {cluster_name}" for sentence, cluster_name in zip(sentences, cluster_names)]
+    x_data = [float(x[0]) for x in embedded_embeddings]
+    y_data = [float(x[1]) for x in embedded_embeddings]
+    
 
-    # # Create the scatter plot
-    # scatter_plot = go.Scatter(
-    #     x=x_data,
-    #     y=y_data,
-    #     mode='markers',
-    #     name='Scatter Plot',
-    #     color=cluster_names,
-    #     text=hover_text,  # Set the hover text
-    #     hoverinfo='text'  # Show text on hover
-    # )
+    scatter_plot_data = {
+        'x_data': x_data,
+        'y_data': y_data,
+        'cluster_labels': cluster_labels.tolist(),
+        'sentences': sentences
+    }
 
-    # # Create the layout
-    # layout = go.Layout(
-    #     title='Embeddings Scatter Plot',
-    #     xaxis=dict(title='X-axis'),
-    #     yaxis=dict(title='Y-axis')
-    # )
-
-    # Create the figure
-    # fig = go.Figure(data=[scatter_plot], layout=layout)
-    df = pd.DataFrame()
-    df['x_data'] = [x[0] for x in embedded_embeddings]
-    df['y_data'] = [x[1] for x in embedded_embeddings]
-    df['sentences'] = sentences
-    df['cluster_names'] = cluster_names
-
-    fig = px.scatter(df, x = 'x_data', y = 'y_data', color = 'cluster_names')
-    # Convert the figure to JSON
-    scatter_plot_json = fig.to_json()
-
-    return render_template('analysis.html', sentences=sentences, cluster_labels=cluster_labels,
-                            embedded_embeddings=embedded_embeddings, cluster_names=cluster_names, scatter_plot_json=scatter_plot_json,
-                            context={"cluster_data":zip(cluster_labels, sentences), "cluster_viz": enumerate(embedded_embeddings)})
+    return render_template('analysis.html', scatter_plot_data=scatter_plot_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

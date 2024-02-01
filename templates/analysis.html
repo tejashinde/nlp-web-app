@@ -4,61 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Analysis Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <nav>
-        <div class="logo">
-            lingo-rephraise <span>ai</span>
-        </div>
-        <!-- Add other navigation items if needed -->
-    </nav>
-
-    <div class="container">
-        <h1>Text Analysis Results</h1>
-
-        <div id="scatter_plot">
-
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <div id="scatter-plot">
         <script>
-            var scatter_plot_data = {{ scatter_plot_json | safe }};
-            Plotly.newPlot('scatter_plot', scatter_plot_data);
+            // Access data passed from Flask
+            var xValues = {{ scatter_plot_data.x_data | tojson }};
+            var yValues = {{ scatter_plot_data.y_data | tojson }};
+            var clusterLabels = {{ scatter_plot_data.cluster_labels | tojson }};
+    
+            // Group data by cluster labels
+            var dataByCluster = {};
+            for (var i = 0; i < clusterLabels.length; i++) {
+                var label = clusterLabels[i];
+                if (!dataByCluster[label]) {
+                    dataByCluster[label] = { x: [], y: [], name: 'Cluster ' + label, mode: 'markers', type: 'scatter' };
+                }
+                dataByCluster[label].x.push(xValues[i]);
+                dataByCluster[label].y.push(yValues[i]);
+            }
+
+            // Create an array of traces
+            var traces = Object.values(dataByCluster);
+
+            // Create the layout
+            var layout = {
+                title: 'Scatter Plot Example with Cluster Labels',
+                xaxis: { title: 'X-axis' },
+                yaxis: { title: 'Y-axis' },
+                showlegend: true
+            };
+
+            // Create the plot
+            Plotly.newPlot('scatter-plot', traces, layout);
+
         </script>
-        </div>
-
-        <!-- Cluster Details -->
-        <h2>Cluster Details</h2>
-        <div id="cluster-details">
-            <ul>
-                {% for cluster_id, cluster_name in cluster_names.items() %}
-                    <li>Cluster {{ cluster_id }}: {{ cluster_name }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Clustered Data -->
-        <h2>Clustered Data</h2>
-        <div id="clustered-data">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cluster ID</th>
-                        <th>Phrases</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for idx, sentence in cluster_data %}
-                        <tr>
-                            <td>{{ cluster_labels[idx] }}</td>
-                            <td>{{ sentence }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Add more visualization elements as needed -->
-
     </div>
 </body>
 </html>

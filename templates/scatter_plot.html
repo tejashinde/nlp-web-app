@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatter Plot with Cluster Labels - D3.js</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Add CSS styles here */
+        .legend rect {
+            fill: #fff;
+            stroke: #000;
+            stroke-width: 2;
+        }
+
+        .legend text {
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scatter Plot with Cluster Labels - D3.js</h1>
+    <svg id="scatter-plot" width="800" height="600"></svg>
+
+    <script>
+        // Access data passed from Flask using Jinja2 templating
+        var xData = {{ scatter_plot_data.x_data | tojson }};
+        var yData = {{ scatter_plot_data.y_data | tojson }};
+        var clusterLabels = {{ scatter_plot_data.cluster_labels | tojson }};
+
+        // Combine data into an array of objects
+        var data = xData.map((_, i) => ({
+            x: xData[i],
+            y: yData[i],
+            cluster: clusterLabels[i]
+        }));
+
+        // Set up SVG container
+        var svg = d3.select("#scatter-plot"),
+            margin = {top: 20, right: 20, bottom: 50, left: 50},
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // Set up scales
+        var x = d3.scaleLinear()
+            .domain(d3.extent(data, function(d) { return d.x; })).nice()
+            .range([0, width]);
+
+        var y = d3.scaleLinear()
+            .domain(d3.extent(data, function(d) { return d.y; })).nice()
+            .range([height, 0]);
+
+        // Set up color scale for clusters
+        var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // Add scatter plot points
+        g.selectAll("circle")
+            .data(data)
+            .enter().append("circle")
+            .attr("cx", function(d) { return x(d.x); })
+            .attr("cy", function(d) { return y(d.y); })
+            .attr("r", 5)
+            .attr("fill", function(d) { return color(d.cluster); });
+
+        // Add x-axis
+        g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x))
+            .append("text")
+            .attr("fill", "#000")
+            .attr("x", width)
+            .attr("dy", "-0.71em")
+            .attr("text-anchor", "end")
+            .text("X-axis");
+
+        // Add y-axis
+        g.append("g")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("fill", "#000")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+            .text("Y-axis");
+
+        // Add legend
+        var legend = svg.selectAll(".legend")
+            .data(color.domain())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) { return "translate(0," + (height + margin.top + 20 * i) + ")"; });
+
+        legend.append("rect")
+            .attr("x", width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color);
+
+        legend.append("text")
+            .attr("x", width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return "Cluster " + d; });
+    </script>
+</body>
+</html>

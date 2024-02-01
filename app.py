@@ -132,5 +132,24 @@ def analysis():
 
     return render_template('analysis.html', scatter_plot_data=scatter_plot_data)
 
+
+@app.route('/scatter_plot')
+def scatter_plot():
+
+    sentences, cluster_labels, embedded_embeddings, cluster_names = process_analysis('./uploads/mcdonalds_sri_lanka_reviews.csv', 'phrases')
+
+    x_data = [float(x[0]) for x in embedded_embeddings]
+    y_data = [float(x[1]) for x in embedded_embeddings]
+    
+
+    scatter_plot_data = {
+        'x_data': x_data,
+        'y_data': y_data,
+        'cluster_labels': cluster_labels.tolist(),
+        'sentences': sentences
+    }
+
+    return render_template('scatter_plot.html', scatter_plot_data=scatter_plot_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
